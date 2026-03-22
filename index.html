@@ -820,7 +820,18 @@ function sendPhoneOTP(){
   if(!cb||!cb.checked){alert('Please accept the Terms to continue.');return;}
   var otp=_genOtp(); S.otpCode=otp; S._lastPhone=ph;
   _setBusy(true,'Send OTP →');
-  fetch('https://www.fast2sms.com/dev/bulkV2?authorization='+CFG.FAST2SMS_KEY+'&variables_values='+otp+'&route=otp&numbers='+ph,
+  fetch('/api/send-otp', {
+  method: 'POST',
+  headers: {'Content-Type':'application/json'},
+  body: JSON.stringify({phone: ph, otp: otp})
+})
+.then(function(r){ return r.json(); })
+.then(function(d){
+  _setBusy(false,'Send OTP →');
+  if(d.success){ S.otpSent=true; renderAuth(); }
+  else{ showToast('Could not send SMS. Please try again.'); }
+})
+.catch(function(){ _setBusy(false,'Send OTP →'); showToast('Network error. Please try again.'); });
     {method:'GET',headers:{'cache-control':'no-cache'}})
   .then(function(r){return r.json();})
   .then(function(d){
@@ -840,17 +851,18 @@ function sendEmailOTP(){
   if(!cb||!cb.checked){alert('Please accept the Terms to continue.');return;}
   var otp=_genOtp(); S.otpCode=otp; S._lastEmail=em;
   _setBusy(true,'Send Verification Code →');
-  fetch('https://api.emailjs.com/api/v1.0/email/send',{
-    method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({service_id:CFG.EMAILJS_SVC,template_id:CFG.EMAILJS_TPL,user_id:CFG.EMAILJS_KEY,
-      template_params:{to_email:em,otp_code:otp,app_name:'RBI Sathi',valid_mins:'10'}})
-  })
-  .then(function(r){
-    _setBusy(false,'Send Verification Code →');
-    if(r.status===200){S.otpSent=true;renderAuth();}
-    else{showToast('Could not send email. Please try again.');}
-  })
-  .catch(function(){_setBusy(false,'Send Verification Code →');showToast('Network error. Please try again.');});
+ fetch('/api/send-email', {
+  method: 'POST',
+  headers: {'Content-Type':'application/json'},
+  body: JSON.stringify({to_email: em, otp_code: otp})
+})
+.then(function(r){ return r.json(); })
+.then(function(d){
+  _setBusy(false,'Send Verification Code →');
+  if(d.success){ S.otpSent=true; renderAuth(); }
+  else{ showToast('Could not send email. Please try again.'); }
+})
+.catch(function(){ _setBusy(false,'Send Verification Code →'); showToast('Network error.'); });
 }
 
 function resendOTP(){
