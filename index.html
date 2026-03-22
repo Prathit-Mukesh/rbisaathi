@@ -344,7 +344,7 @@ button,input,select,textarea{font-family:inherit}
    </div>
   </div>
   <div class="dagree">
-   <input type="checkbox" id="agree-chk" onchange="updDiscBtn()">
+  <input type="checkbox" id="agree-chk" onchange="updDiscBtn()" onclick="updDiscBtn()">
    <label for="agree-chk">I have read the Disclaimer & Privacy Policy. I confirm I am a current RBI employee. I accept all interactions are personal and voluntary, and that the platform founders bear no responsibility for any outcome.</label>
   </div>
   <button class="btn-agree" id="agree-btn" disabled onclick="discProceed()">I Understand & Agree — Enter RBI Sathi</button>
@@ -745,6 +745,11 @@ function updDiscBtn(){
   var chk=document.getElementById('agree-chk');
   var btn=document.getElementById('agree-btn');
   if(btn) btn.disabled=!(chk&&chk.checked);
+  if(btn&&chk&&chk.checked){
+    btn.style.opacity='1';
+    btn.style.cursor='pointer';
+    btn.style.background='var(--rbi)';
+  }
 }
 function discProceed(){
   localStorage.setItem('disc_seen','1');
